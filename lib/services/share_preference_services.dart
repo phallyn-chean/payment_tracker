@@ -1,6 +1,5 @@
 import 'dart:convert';
 import 'dart:io';
-import 'dart:ui';
 
 import 'package:flutter/material.dart';
 import 'package:icofont_flutter/icofont_flutter.dart';
@@ -13,6 +12,7 @@ import 'package:tracker_payment/constants/constant.dart';
 
 final sharePrefs = SharePrefs();
 late String currency;
+var incomeItems = sharePrefs.getItems('income items');
 
 class SharePrefs {
   static SharedPreferences? _sharePrefs;
@@ -90,7 +90,10 @@ class SharePrefs {
   }
 
   List<CategoryItemModel> getItems(String parentItemName) {
-    List<String> itemsEncoded = _sharePrefs!.getStringList(parentItemName)!;
+    List<String>? itemsEncoded = _sharePrefs?.getStringList(parentItemName);
+    if (itemsEncoded == null) {
+      return [];
+    }
     List<CategoryItemModel> items = itemsEncoded
         .map((item) => CategoryItemModel.fromJson(
               jsonDecode(item),
@@ -112,7 +115,7 @@ class SharePrefs {
   List<List<CategoryItemModel>> getAllExpenseItemsLists() {
     List<List<CategoryItemModel>> expenseItemsLists = [];
     for (int i = 0; i < parentExpenseItemNames.length; i++) {
-      var parentExpenseItem = sharePrefs.getItems(parentExpenseItemNames[i]);
+      var parentExpenseItem = sharePrefs.getItems(parentExpenseItemNames[i]) ?? [];
       expenseItemsLists.add(parentExpenseItem);
     }
     return expenseItemsLists;
