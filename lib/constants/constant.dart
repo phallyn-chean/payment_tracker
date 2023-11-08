@@ -191,23 +191,23 @@ List<InputModel> filterData(BuildContext context, List<InputModel> data, String 
           .map((data) {
             DateTime dateSelectedDT = DateFormat('dd/MM/yyyy').parse(data.date);
             if (selectedDate == 'Today') {
-              if (dateSelectedDT.isAfter(todayDT.subtract(Duration(days: 1))) && dateSelectedDT.isBefore(todayDT.add(Duration(days: 1)))) {
+              if (dateSelectedDT.isAfter(todayDT.subtract(const Duration(days: 1))) && dateSelectedDT.isBefore(todayDT.add(const Duration(days: 1)))) {
                 return inputModel(data);
               }
             } else if (selectedDate == 'This week') {
-              if (dateSelectedDT.isAfter(startOfThisWeek.subtract(Duration(days: 1))) && dateSelectedDT.isBefore(startOfThisWeek.add(Duration(days: 7)))) {
+              if (dateSelectedDT.isAfter(startOfThisWeek.subtract(const Duration(days: 1))) && dateSelectedDT.isBefore(startOfThisWeek.add(const Duration(days: 7)))) {
                 return inputModel(data);
               }
             } else if (selectedDate == 'This month') {
-              if (dateSelectedDT.isAfter(startOfThisMonth.subtract(Duration(days: 1))) && dateSelectedDT.isBefore(DateTime(todayDT.year, todayDT.month + 1, 1))) {
+              if (dateSelectedDT.isAfter(startOfThisMonth.subtract(const Duration(days: 1))) && dateSelectedDT.isBefore(DateTime(todayDT.year, todayDT.month + 1, 1))) {
                 return inputModel(data);
               }
             } else if (selectedDate == 'This quarter') {
-              if (dateSelectedDT.isAfter(startOfThisQuarter.subtract(Duration(days: 1))) && dateSelectedDT.isBefore(DateTime(startOfThisQuarter.year, startOfThisQuarter.month + 3, 1))) {
+              if (dateSelectedDT.isAfter(startOfThisQuarter.subtract(const Duration(days: 1))) && dateSelectedDT.isBefore(DateTime(startOfThisQuarter.year, startOfThisQuarter.month + 3, 1))) {
                 return inputModel(data);
               }
             } else if (selectedDate == 'This year') {
-              if (dateSelectedDT.isAfter(startOfThisYear.subtract(Duration(days: 1))) && dateSelectedDT.isBefore(DateTime(todayDT.year + 1, 1, 1))) {
+              if (dateSelectedDT.isAfter(startOfThisYear.subtract(const Duration(days: 1))) && dateSelectedDT.isBefore(DateTime(todayDT.year + 1, 1, 1))) {
                 return inputModel(data);
               }
             } else {
