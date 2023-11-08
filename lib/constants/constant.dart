@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 import 'package:tracker_payment/models/category_item_model.dart';
+import 'package:tracker_payment/services/share_preference_services.dart';
 
 import '../models/input_model.dart';
 
@@ -112,12 +112,109 @@ Widget? connectionUI(AsyncSnapshot<List<InputModel>> snapshot) {
   }
 }
 
-// List<CategoryItemModel> createItemList({
-//   List<InputModel>? transactions,
-//   required bool forAnalysisPage,
-//   isComeType,
-//   forSelectIconPage,
-// }) {
-//   List<CategoryItemModel> itemList = [], items = [], expenseItems = [];
-//   sharedPrefs.getAllExpenseItemsLists().forEach((parentExpenseItem) => parentExpenseItem.forEach((expenseItem) => expenseItems.add(expenseItem)));
-// }
+List<CategoryItemModel> createItemList({
+  List<InputModel>? transactions,
+  required bool forAnalysisPage,
+  isIncomeType,
+  forSelectIconPage,
+}) {
+  List<CategoryItemModel> itemList = [], items = [], expenseItems = [];
+  sharePrefs.getAllExpenseItemsLists().forEach((parentExpenseItem) {
+    parentExpenseItem.forEach((expenseItem) {
+      expenseItems.add(expenseItem);
+    });
+  });
+  if (forAnalysisPage) {
+    items = isIncomeType ? incomeItems : expenseItems;
+  } else {
+    items = [...incomeItems, ...expenseItems];
+  }
+
+  if (forSelectIconPage) {
+    return items;
+  } else {
+    // ignore: unused_local_variable
+    for (InputModel transaction in transactions!) {
+      for (int i = 0; i < items.length; i++) {
+        if (transaction.category == items[i].text) {
+          itemList.add(items[i]);
+          break;
+        }
+        if (i == items.length - 1) {
+          CategoryItemModel itemElse = CategoryItemModel(
+            iconCodePoint: Icons.category_outlined.codePoint,
+            iconFontPackage: Icons.category_outlined.fontPackage!,
+            iconFontFamily: Icons.category_outlined.fontFamily!,
+            text: transaction.category,
+            description: transaction.description,
+          );
+          itemList.add(itemElse);
+        }
+      }
+    }
+    return itemList;
+  }
+}
+
+final DateTime now = DateTime.now(),
+    todayDT = DateTime(now.year, now.month, now.day),
+    startOfThisWeek = todayDT.subtract(Duration(days: todayDT.weekday - 1)),
+    startOfThisMonth = DateTime(todayDT.year, todayDT.month, 1),
+    startOfThisYear = DateTime(todayDT.year, 1, 1),
+    startOfThisQuarter = DateTime(todayDT.year, quarterStartMonth, 1);
+
+final int thisQuarter = (todayDT.month + 2 ~/ 3), quarterStartMonth = 3 * thisQuarter - 2;
+
+final List<String> timeline = [
+  'Today',
+  'This week',
+  'This month',
+  'This quarter',
+  'This year',
+  'All',
+];
+
+InputModel inputModel(data) {
+  return InputModel(
+    id: data.id,
+    type: data.type,
+    amount: data.amount!,
+    category: data.category!,
+    description: data.description!,
+    date: data.date,
+    time: data.time,
+  );
+}
+
+List<InputModel> filterData(BuildContext context, List<InputModel> data, String selectedDate) {
+  return (data
+          .map((data) {
+            DateTime dateSelectedDT = DateFormat('dd/MM/yyyy').parse(data.date);
+            if (selectedDate == 'Today') {
+              if (dateSelectedDT.isAfter(todayDT.subtract(Duration(days: 1))) && dateSelectedDT.isBefore(todayDT.add(Duration(days: 1)))) {
+                return inputModel(data);
+              }
+            } else if (selectedDate == 'This week') {
+              if (dateSelectedDT.isAfter(startOfThisWeek.subtract(Duration(days: 1))) && dateSelectedDT.isBefore(startOfThisWeek.add(Duration(days: 7)))) {
+                return inputModel(data);
+              }
+            } else if (selectedDate == 'This month') {
+              if (dateSelectedDT.isAfter(startOfThisMonth.subtract(Duration(days: 1))) && dateSelectedDT.isBefore(DateTime(todayDT.year, todayDT.month + 1, 1))) {
+                return inputModel(data);
+              }
+            } else if (selectedDate == 'This quarter') {
+              if (dateSelectedDT.isAfter(startOfThisQuarter.subtract(Duration(days: 1))) && dateSelectedDT.isBefore(DateTime(startOfThisQuarter.year, startOfThisQuarter.month + 3, 1))) {
+                return inputModel(data);
+              }
+            } else if (selectedDate == 'This year') {
+              if (dateSelectedDT.isAfter(startOfThisYear.subtract(Duration(days: 1))) && dateSelectedDT.isBefore(DateTime(todayDT.year + 1, 1, 1))) {
+                return inputModel(data);
+              }
+            } else {
+              return inputModel(data);
+            }
+          })
+          .where((element) => element != null)
+          .toList())
+      .cast<InputModel>();
+}
